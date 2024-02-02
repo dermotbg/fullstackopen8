@@ -1,14 +1,35 @@
 /* eslint-disable react/prop-types */
-import { useQuery } from '@apollo/client'
-import { GET_ALL_AUTHORS } from './queries'
+import { useMutation, useQuery } from '@apollo/client'
+import { EDIT_BIRTHYEAR, GET_ALL_AUTHORS } from './queries'
+import { useState } from 'react'
 
 const Authors = (props) => {
+
+    const [name, setName] = useState('')
+    const [birthyear, setBirthyear] = useState('')
+
+    const [ updateBirthyear ] = useMutation(EDIT_BIRTHYEAR, {
+      refetchQueries: [{ query: GET_ALL_AUTHORS }],
+      onError: (error) => {
+        const messages = error.graphQLErrors.map(e => e.message).join('\n')
+        console.log(messages)
+      }
+    })
+
     const result = useQuery( GET_ALL_AUTHORS, {
       refetchQueries: [ { query: GET_ALL_AUTHORS } ]
     })
 
     if (!props.show) {
       return null
+    }
+
+    const submit = (e) => {
+      e.preventDefault()
+      // usemutaiton
+      updateBirthyear({ variables: { name, birthyear } })
+      setName('')
+      setBirthyear('')
     }
 
     
@@ -37,6 +58,23 @@ const Authors = (props) => {
             ))}
           </tbody>
         </table>
+        <h3>Set birthyear</h3>
+        <form onSubmit={submit}>
+          <div>
+            name
+            <input type="text"
+              value={name}
+              onChange={({ target }) => setName(target.value)} />
+          </div>
+          <div>
+            born
+            <input
+              type="number" value={birthyear}
+              onChange={({ target }) => setBirthyear(Number(target.value))}
+             />
+          </div>
+          <button type='submit'> Update Author</button>
+        </form>
       </div>
     )
   }
