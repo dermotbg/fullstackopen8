@@ -176,7 +176,7 @@ const resolvers = {
     },
     editAuthor: (root, args) => {
       const findAuthor = authors.find((a) => a.name === args.name)
-      if(!findAuthor) return null
+      if(!findAuthor) return null 
       const editedAuthor = { ...findAuthor, born: args.setBornTo }
       authors = authors.filter(a => a.name !== args.name).concat(editedAuthor)
       return editedAuthor
