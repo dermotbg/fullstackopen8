@@ -26,11 +26,10 @@ const Authors = (props) => {
 
     const submit = (e) => {
       e.preventDefault()
-      // usemutaiton
       updateBirthyear({ variables: { name, birthyear } })
       setName('')
       setBirthyear('')
-    }
+    } 
 
     
     if (result.loading) {
@@ -60,12 +59,19 @@ const Authors = (props) => {
         </table>
         <h3>Set birthyear</h3>
         <form onSubmit={submit}>
-          <div>
+          <select value={name} onChange={(e) => setName(e.target.value)} >
+            {authors.map((a) => {
+              return(
+                <option key={a.name} value={a.name}>{a.name}</option>
+              )
+            })}
+          </select>
+          {/* <div>
             name
             <input type="text"
               value={name}
               onChange={({ target }) => setName(target.value)} />
-          </div>
+          </div> */}
           <div>
             born
             <input
