@@ -90,7 +90,7 @@ const resolvers = {
     allBooks: async (root, args) => {
       // if no args given
       if(!args.author && !args.genre){ 
-        return Book.find({})
+        return Book.find({}).populate('author')
       }
       // if only genre given
       else if(args.genre){
@@ -224,6 +224,7 @@ const resolvers = {
     }
   }
 }
+
 
 const server = new ApolloServer({
   typeDefs,
