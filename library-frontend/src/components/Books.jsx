@@ -1,8 +1,13 @@
-import { useQuery } from "@apollo/client"
+import { useApolloClient, useQuery } from "@apollo/client"
 import { GET_ALL_BOOKS } from "./queries"
+import { useEffect, useState } from "react"
 
 /* eslint-disable react/prop-types */
 const Books = (props) => {
+
+  const [books, setBooks] = useState([])
+  const [genres, setGenres] = useState([])
+  const [filters, setFilters] = useState([])
 
     const result = useQuery(GET_ALL_BOOKS, {
       refetchQueries: [ { query: GET_ALL_BOOKS } ],
@@ -12,14 +17,57 @@ const Books = (props) => {
       }
     })
 
+    // set initial books state
+    useEffect(() => {
+      if(!result.loading){
+        setBooks(result.data.allBooks)
+      }
+
+    }, [result.loading, result.data])
+
+    // get list of active genres to populate buttons
+    useEffect(() => {
+      if(!genres[0] && books){
+        //create array of genre arrays for each book
+        const tempBooks = books.map((b) => b.genres)
+        // consolidate into single array of unique genres 
+        const tempGenres = tempBooks.reduce((acc, curr) => {
+          curr.map((g) => {
+            if(!acc.includes(g)){
+              //push and return acc to initial reduce
+              acc.push(g)
+              return acc
+            }
+          })
+          //ret final array 
+          return acc
+        },[])
+        setGenres(tempGenres)
+      } 
+    },[books])
+
     if (!props.show) {
       return null
     }
 
     if (result.loading) return <div> Loading Books...</div>
 
-    
-    const books = result.data.allBooks
+    const sortGenres = (g) => {
+      if(g === 'clear filters') {
+        setFilters([])
+        setBooks(result.data.allBooks)
+        return 
+      }
+      else{
+        const filterList = [...filters, g]
+        setFilters([...filters.concat(g)])
+        const filteredBooks = books.filter((book) => {
+          return filterList.some((f) => book.genres.includes(f))
+        })
+        setBooks(filteredBooks)
+      }
+    }
+
     
     return (
       <div>
@@ -41,6 +89,10 @@ const Books = (props) => {
             ))}
           </tbody>
         </table>
+            {genres.map((g) => [
+              <button key={g} onClick={() => sortGenres(`${g}`)}>{g}</button>
+            ])}
+            <button onClick={() => sortGenres('clear filters')}>clear filters</button>
       </div>
     )
   }
