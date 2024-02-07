@@ -1,5 +1,5 @@
-import { useApolloClient, useQuery } from "@apollo/client"
-import { GET_FILTERED_BOOKS } from "./queries"
+import { useQuery } from "@apollo/client"
+import { GET_ALL_BOOKS } from "./queries"
 import { useEffect, useState } from "react"
 
 /* eslint-disable react/prop-types */
@@ -7,15 +7,13 @@ const Books = (props) => {
 
   const [books, setBooks] = useState([])
   const [genres, setGenres] = useState([])
-  const [filter, setFilter] = useState('')
-  const client = useApolloClient()
+  const [filters, setFilters] = useState([])
 
-    const result = useQuery(GET_FILTERED_BOOKS, {
+    const result = useQuery(GET_ALL_BOOKS, {
       onError: (error) => {
         const messages = error.graphQLErrors.map(e => e.message).join('\n')
         console.log(messages)
-      },
-      variables: { genre: filter }
+      }
     })
 
     // set initial books state
@@ -28,11 +26,7 @@ const Books = (props) => {
 
     // get list of active genres to populate buttons
     useEffect(() => {
-      // condition to stop re-generating genres based off filtered books
-      if(filter !== '') {
-        return
-      }
-      if(!result.loading){
+      if(!genres[0] && books){
         //create array of genre arrays for each book
         const tempBooks = books.map((b) => b.genres)
         // consolidate into single array of unique genres 
@@ -49,18 +43,29 @@ const Books = (props) => {
         },[])
         setGenres(tempGenres)
       } 
-    },[result.loading, books])
-
-    const resetFilters = () => {
-      client.resetStore() 
-      setFilter('')
-    }
+    },[books])
 
     if (!props.show) {
       return null
     }
 
     if (result.loading) return <div> Loading Books...</div>
+
+    const sortGenres = (g) => {
+      if(g === 'clear filters') {
+        setFilters([])
+        setBooks(result.data.allBooks)
+        return 
+      }
+      else{
+        const filterList = [...filters, g]
+        setFilters([...filters.concat(g)])
+        const filteredBooks = books.filter((book) => {
+          return filterList.some((f) => book.genres.includes(f))
+        })
+        setBooks(filteredBooks)
+      }
+    }
 
     
     return (
@@ -83,10 +88,10 @@ const Books = (props) => {
             ))}
           </tbody>
         </table>
-            {genres.map((g) => (
-              <button key={g} onClick={() => setFilter(`${g}`)}>{g}</button>
-            ))}
-            <button onClick={resetFilters}>clear filters</button>
+            {genres.map((g) => [
+              <button key={g} onClick={() => sortGenres(`${g}`)}>{g}</button>
+            ])}
+            <button onClick={() => sortGenres('clear filters')}>clear filters</button>
       </div>
     )
   }

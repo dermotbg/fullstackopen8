@@ -23,6 +23,20 @@ export const GET_ALL_BOOKS = gql`
   }
 `
 
+// set up second call for books with optional genre array
+export const GET_FILTERED_BOOKS = gql`
+  query ($genre: String) {
+    allBooks(genre: $genre){
+      title
+      published
+      author{
+        name
+      }
+      genres
+    }
+  }
+`
+
 export const GET_USER_FAVOURITE = gql`
   query{
     me {

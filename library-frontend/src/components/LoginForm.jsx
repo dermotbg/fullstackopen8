@@ -3,7 +3,7 @@ import { useMutation } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { LOGIN } from "./queries";
 
-const LoginForm = ({ setError, setToken, setPage }) => {
+const LoginForm = ({ show, setError, setToken, setPage }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
@@ -27,6 +27,10 @@ const LoginForm = ({ setError, setToken, setPage }) => {
     setTimeout(() => {
       setPage('authors')
     },100)
+  }
+
+  if (!show) {
+    return null
   }
 
   return(

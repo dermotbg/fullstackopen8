@@ -3,8 +3,9 @@ import Authors from './components/Authors'
 import Books from './components/Books'
 import NewBook from './components/NewBook'
 import LoginForm from './components/LoginForm'
-import { useApolloClient } from '@apollo/client'
+import { useApolloClient, useQuery } from '@apollo/client'
 import Recommended from './components/Recommended'
+import { GET_ALL_BOOKS } from './components/queries'
 
 const App = () => {
   const [page, setPage] = useState('authors')
@@ -17,6 +18,13 @@ const App = () => {
     client.resetStore()
   }
 
+  const result = useQuery(GET_ALL_BOOKS, {
+    onError: (error) => {
+      const messages = error.graphQLErrors.map(e => e.message).join('\n')
+      console.log(messages)
+    }
+  })
+
   useEffect(() => {
     const localToken = JSON.stringify(localStorage.getItem('login-token'))
     if(!token && localToken !== 'null'){
@@ -25,7 +33,7 @@ const App = () => {
   },[token])
 
 
-
+  if(result.loading) return <div>Loading...</div>
   return (
     <div>
       <div>
@@ -43,19 +51,17 @@ const App = () => {
 
       <Authors show={page === 'authors'} />
 
-      <Books show={page === 'books'} />
+      <Books show={page === 'books'} books={result.data.allBooks} />
 
       <NewBook show={page === 'add'} />
 
-      {token && page === 'recommended' ?
-        <Recommended show={page === 'recommended'} />
+      {token && page === 'recommended' 
+        ? <Recommended show={page === 'recommended'} />
         : null
       }
 
-      {(!token && page === 'login') 
-        ? <LoginForm setToken={setToken} setPage={setPage} show={page === 'login'} />
-        : null
-      }
+      <LoginForm setToken={setToken} setPage={setPage} show={page === 'login'} />
+
     </div>
   )
 }

@@ -1,8 +1,9 @@
+/* eslint-disable react/prop-types */
 import { useQuery } from "@apollo/client"
 import { GET_ALL_BOOKS, GET_USER_FAVOURITE } from "./queries"
 import { useEffect, useState } from "react"
 
-const Recommended = () => {
+const Recommended = (props) => {
 
     const [filteredBooks, setFilteredBooks] = useState([]) 
 
@@ -34,6 +35,10 @@ const Recommended = () => {
       },[userFavouriteResult, booksResult])
       
       if(userFavouriteResult.loading || booksResult.loading) return <div>Loading...</div>
+
+      if (!props.show) {
+        return null
+      }
 
       return(
         <div>
