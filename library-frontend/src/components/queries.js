@@ -23,13 +23,13 @@ export const GET_ALL_BOOKS = gql`
   }
 `
 
-// export const GET_ALL_GENRES = gql`
-//   query {
-//     allBooks{
-//       genres
-//     }
-//   }  
-// `
+export const GET_USER_FAVOURITE = gql`
+  query{
+    me {
+      favoriteGenre
+    }
+  }
+`
 
 export const ADD_BOOK = gql`
   mutation createBook($title: String!, $author: String!, $published: Int!, $genres: [String!]!) {
