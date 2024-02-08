@@ -5,7 +5,8 @@ import NewBook from './components/NewBook'
 import LoginForm from './components/LoginForm'
 import { useApolloClient, useQuery, useSubscription } from '@apollo/client'
 import Recommended from './components/Recommended'
-import { BOOK_ADDED, GET_ALL_BOOKS } from './components/queries'
+import { BOOK_ADDED, GET_ALL_BOOKS, GET_FILTERED_BOOKS } from './components/queries'
+import { updateCache, updateFilteredCache } from './components/utils/updateCache'
 
 const App = () => {
   const [page, setPage] = useState('authors')
@@ -17,6 +18,9 @@ const App = () => {
       console.log(data)
       const title = data.data.bookAdded.title
       window.alert(`${title} added`)
+      updateCache(client.cache, { query: GET_ALL_BOOKS }, data.data.bookAdded)
+      //second call needed for book with genre filter
+      updateFilteredCache(client.cache, { query: GET_FILTERED_BOOKS }, data.data.bookAdded, data.data.bookAdded.genre)
     }
   })
 

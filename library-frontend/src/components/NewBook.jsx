@@ -1,7 +1,8 @@
 /* eslint-disable react/prop-types */
 import { useMutation } from '@apollo/client'
 import { useState } from 'react'
-import { ADD_BOOK, GET_ALL_BOOKS, } from './queries'
+import { ADD_BOOK, GET_ALL_BOOKS, GET_FILTERED_BOOKS, } from './queries'
+import { updateCache, updateFilteredCache } from './utils/updateCache'
 
 const NewBook = (props) => {
   const [title, setTitle] = useState('')
@@ -10,24 +11,18 @@ const NewBook = (props) => {
   const [genre, setGenre] = useState('')
   const [genres, setGenres] = useState([])
 
+
   const [ createBook ] = useMutation(ADD_BOOK, {
     onError: (error) => {
       const messages = error.graphQLErrors.map(e => e.message).join('\n')
       console.log(messages)
     },
-    update: (cache, { data: createBook }) => {
-      const currentBooks  = cache.readQuery({ query: GET_ALL_BOOKS }).allBooks
-
-      cache.writeQuery({ 
-        query: GET_ALL_BOOKS, 
-        data: { allBooks: [...currentBooks, {
-          author: createBook.addBook.author,
-          genres: createBook.addBook.genres,
-          published: createBook.addBook.published,
-          title: createBook.addBook.title
-        }] } 
-      })
-    }
+    update: (cache, response) => {
+      updateCache(cache, { query: GET_ALL_BOOKS }, response.data.addBook)
+      //second call needed for book with genre filter
+      updateFilteredCache(cache, { query: GET_FILTERED_BOOKS }, response.data.bookAdded, response.data.bookAdded.genre)
+    },
+    
   })
 
   if (!props.show) {
