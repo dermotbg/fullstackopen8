@@ -2,13 +2,13 @@ const { ApolloServer } = require('@apollo/server')
 const { expressMiddleware } = require('@apollo/server/express4')
 const { ApolloServerPluginDrainHttpServer } = require('@apollo/server/plugin/drainHttpServer')
 const { makeExecutableSchema } = require('@graphql-tools/schema')
+const express = require('express')
+const cors = require('cors')
+const http = require('http')
 
 const { WebSocketServer } = require('ws')
 const { useServer } = require('graphql-ws/lib/use/ws')
 
-const express = require('express')
-const cors = require('cors')
-const http = require('http')
 
 const jwt = require('jsonwebtoken')
 
@@ -48,8 +48,7 @@ mongoose.connect(MONGODB_URI)
 
     const server = new ApolloServer({
       schema,
-      plugins: [
-        ApolloServerPluginDrainHttpServer({ httpServer }),
+      plugins: [ApolloServerPluginDrainHttpServer({ httpServer }),
       {
         async serverWillStart() {
           return {
@@ -58,8 +57,7 @@ mongoose.connect(MONGODB_URI)
             }
           }
         }
-      }
-    ],
+      }]
     })
 
     //GraphQL launched 
@@ -78,8 +76,8 @@ mongoose.connect(MONGODB_URI)
             const currentUser = await User.findById(decodedToken.id)
             return { currentUser }
           }
-        },
-      }),
+        }
+      })
     )
     
 
