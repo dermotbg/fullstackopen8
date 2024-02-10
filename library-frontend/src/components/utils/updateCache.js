@@ -7,7 +7,6 @@ export const updateCache = (cache, query, addedBook) => {
     })
   }
   cache.updateQuery(query, ({ allBooks }) => {
-    console.log(makeUnique(allBooks.concat(addedBook)))
     return {
       allBooks: makeUnique(allBooks.concat(addedBook))
     }
@@ -23,7 +22,6 @@ export const updateFilteredCache = (cache, query, addedBook, genre = '' ) => {
     })
   }
   cache.updateQuery({...query,  variables: { genre } }, ({ allBooks }) => {
-    console.log(makeUnique(allBooks.concat(addedBook)))
     return {
       allBooks: makeUnique(allBooks.concat(addedBook))
     }

@@ -33,6 +33,8 @@ mongoose.connect(MONGODB_URI)
     console.log('error connection to MDB', error.message)
   })
 
+  // mongoose.set('debug', true)
+
   // GraphQL / Ws server config
   const start = async () => {
     const app = express()

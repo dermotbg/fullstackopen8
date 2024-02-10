@@ -33,19 +33,29 @@ const resolvers = {
       } 
     },
     // SHOULD THIS HAVE NAME ARG?
-    allAuthors : async (root, args) => Author.find({}),
+    allAuthors : async (root, args) => Author.find({}).populate('books'),
 
     me: (root, args, context) => {
       return context.currentUser
     }
+  },
+  Author: {
+    bookCount: async (root) => root.books.length 
   },
   Mutation: {
     addBook: async (root, args, context) => {
       let bookAuthor = await Author.findOne({ name: args.author })
       if(!bookAuthor){
         bookAuthor = await Author.create({ name: args.author })
-      }
+      }        
       const newBook = new Book({ ...args, author: bookAuthor })
+
+      //add to author's books array
+      await Author.findByIdAndUpdate(
+        bookAuthor._id,
+        { $push: { books: newBook._id } }
+      )
+
       const currentUser = context.currentUser
       if(!currentUser){
         throw new GraphQLError('not authenticated', {
