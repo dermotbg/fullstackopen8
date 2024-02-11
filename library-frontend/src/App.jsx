@@ -15,7 +15,6 @@ const App = () => {
 
   useSubscription(BOOK_ADDED, {
     onData: ({ data }) => {
-      console.log(data)
       const title = data.data.bookAdded.title
       window.alert(`${title} added`)
       updateCache(client.cache, { query: GET_ALL_BOOKS }, data.data.bookAdded)
